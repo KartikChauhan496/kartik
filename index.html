@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKS Puzzle Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="background"></div>
+        <div class="puzzle-box" id="puzzle-box">
+            <h1>SKS Puzzle Game</h1>
+            <div class="level-selector">
+                <button onclick="startGame('beginner')">Beginner</button>
+                <button onclick="startGame('medium')">Medium</button>
+                <button onclick="startGame('hard')">Hard</button>
+            </div>
+            <div id="puzzle-area"></div>
+            <div id="feedback"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
