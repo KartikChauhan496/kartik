@@ -1,114 +1,106 @@
-body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
+const puzzleArea = document.getElementById('puzzle-area');
+const feedback = document.getElementById('feedback');
+const puzzleBox = document.getElementById('puzzle-box');
+
+const puzzles = {
+    beginner: [
+        { question: "What is 25 + 17?", answer: "42", draggable: ["42", "35", "50"] },
+        { question: "What is the capital of India?", answer: "new delhi", draggable: ["new delhi", "mumbai", "kolkata"] },
+        { question: "What is 12 × 5?", answer: "60", draggable: ["60", "50", "70"] },
+        { question: "Which planet is known as the Red Planet?", answer: "mars", draggable: ["mars", "venus", "jupiter"] },
+        { question: "What is the largest mammal in the world?", answer: "blue whale", draggable: ["blue whale", "elephant", "shark"] }
+    ],
+    medium: [
+        { question: "What is 144 ÷ 12?", answer: "12", draggable: ["12", "10", "14"] },
+        { question: "Who wrote the play 'Romeo and Juliet'?", answer: "william shakespeare", draggable: ["william shakespeare", "charles dickens", "mark twain"] },
+        { question: "What is the square root of 64?", answer: "8", draggable: ["8", "6", "10"] },
+        { question: "Which gas do plants absorb from the air?", answer: "carbon dioxide", draggable: ["carbon dioxide", "oxygen", "nitrogen"] },
+        { question: "What is the smallest prime number?", answer: "2", draggable: ["2", "1", "3"] }
+    ],
+    hard: [
+        { question: "What is 15% of 200?", answer: "30", draggable: ["30", "25", "35"] },
+        { question: "Which is the longest river in the world?", answer: "nile", draggable: ["nile", "amazon", "yangtze"] },
+        { question: "What is the chemical formula for water?", answer: "h2o", draggable: ["h2o", "co2", "o2"] },
+        { question: "What is the value of π (pi) rounded to two decimal places?", answer: "3.14", draggable: ["3.14", "3.16", "3.12"] },
+        { question: "Which country is known as the Land of the Rising Sun?", answer: "japan", draggable: ["japan", "china", "india"] }
+    ]
+};
+
+let currentLevel = null;
+let currentQuestionIndex = 0;
+
+function startGame(level) {
+    currentLevel = level;
+    currentQuestionIndex = 0;
+    loadQuestion();
 }
 
-.container {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    border: 2px solid #000;
-    overflow: hidden;
+function loadQuestion() {
+    const puzzle = puzzles[currentLevel][currentQuestionIndex];
+    puzzleArea.innerHTML = `<p>${puzzle.question}</p>`;
+    puzzle.draggable.forEach(word => {
+        const draggableElement = document.createElement('div');
+        draggableElement.classList.add('draggable');
+        draggableElement.textContent = word;
+        draggableElement.draggable = true;
+        draggableElement.addEventListener('dragstart', dragStart);
+        puzzleArea.appendChild(draggableElement);
+    });
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Type your answer here...';
+    input.addEventListener('input', checkAnswer);
+    puzzleArea.appendChild(input);
+
+    // Remove existing star border
+    const existingStarBorder = puzzleBox.querySelector('.star-border');
+    if (existingStarBorder) {
+        existingStarBorder.remove();
+    }
+    feedback.textContent = '';
 }
 
-.background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #ff0000; /* Red background */
-    opacity: 0.6;
-    z-index: -1;
+function dragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.textContent);
 }
 
-.puzzle-box {
-    position: relative;
-    z-index: 1;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    border: 2px solid #000;
+function checkAnswer(event) {
+    const userAnswer = event.target.value.toLowerCase();
+    const puzzle = puzzles[currentLevel][currentQuestionIndex];
+    if (userAnswer === puzzle.answer) {
+        feedback.textContent = "Correct!";
+        feedback.style.color = "green";
+        addStarBorder();
+        setTimeout(() => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < puzzles[currentLevel].length) {
+                loadQuestion();
+            } else {
+                feedback.textContent = "You have completed all questions!";
+                feedback.style.color = "blue";
+            }
+        }, 1000); // Move to the next question after 1 second
+    } else {
+        feedback.textContent = "Incorrect!";
+        feedback.style.color = "red";
+    }
 }
 
-.level-selector {
-    margin-bottom: 20px;
+function addStarBorder() {
+    const starBorder = document.createElement('div');
+    starBorder.classList.add('star-border');
+    puzzleBox.appendChild(starBorder);
 }
 
-.level-selector button {
-    margin: 5px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #ff4444;
-    color: white;
-    border: none;
-    border-radius: 5px;
-}
+document.addEventListener('dragover', event => {
+    event.preventDefault();
+});
 
-.level-selector button:hover {
-    background-color: #cc0000;
-}
-
-#puzzle-area {
-    margin-top: 20px;
-    padding: 20px;
-    background-color: #fff;
-    border: 1px solid #000;
-    border-radius: 10px;
-}
-
-#feedback {
-    margin-top: 20px;
-    font-size: 18px;
-    color: green;
-}
-
-.draggable {
-    padding: 10px;
-    margin: 5px;
-    background-color: #e0e0e0;
-    border: 1px solid #000;
-    border-radius: 5px;
-    cursor: grab;
-    display: inline-block;
-}
-
-.draggable:active {
-    cursor: grabbing;
-}
-
-.star-border {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.star-border::before,
-.star-border::after {
-    content: '';
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    background-color: gold;
-    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
-
-.star-border::before {
-    top: -10px;
-    left: -10px;
-}
-
-.star-border::after {
-    bottom: -10px;
-    right: -10px;
-}
+document.addEventListener('drop', event => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text/plain');
+    const input = puzzleArea.querySelector('input');
+    input.value = data;
+    checkAnswer({ target: input });
+});
